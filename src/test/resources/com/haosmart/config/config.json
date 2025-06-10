@@ -1,0 +1,97 @@
+[
+  {
+    "id": "mysqlFrom",
+    "dbType": "mysql",
+    "dbUrl": "jdbc:mysql://192.168.120.110:31116/haosmart_base?useUnicode=true&characterEncoding=utf-8&useSSL=false&serverTimezone=Asia/Shanghai",
+    "userName": "zy-haosmart-regular",
+    "password": "Hrd.123456",
+    "encoding": "utf-8"
+  },
+  {
+    "id": "mysqlLogFrom",
+    "dbType": "mysql",
+    "dbUrl": "jdbc:mysql://192.168.120.110:31116/haosmart_log?useUnicode=true&characterEncoding=utf-8&useSSL=false&serverTimezone=Asia/Shanghai",
+    "userName": "zy-haosmart-regular",
+    "password": "Hrd.123456",
+    "encoding": "utf-8"
+  },
+  {
+    "id": "mysqlUploadFrom",
+    "dbType": "mysql",
+    "dbUrl": "jdbc:mysql://192.168.120.110:31116/haosmart_upload?useUnicode=true&characterEncoding=utf-8&useSSL=false&serverTimezone=Asia/Shanghai",
+    "userName": "zy-haosmart-regular",
+    "password": "Hrd.123456",
+    "encoding": "utf-8"
+  },
+  {
+    "id": "mysqlSeataFrom",
+    "dbType": "mysql",
+    "dbUrl": "jdbc:mysql://192.168.120.110:31116/haosmart_seata?useUnicode=true&characterEncoding=utf-8&useSSL=false&serverTimezone=Asia/Shanghai",
+    "userName": "zy-haosmart-regular",
+    "password": "Hrd.123456",
+    "encoding": "utf-8"
+  },
+  {
+    "id": "oracleTo",
+    "dbType": "oracle",
+    "dbUrl": "jdbc:oracle:thin:@//192.168.100.230:1525/LHRPDB1",
+    "userName": "HAOSMART_DEV",
+    "password": "rd.123456",
+    "encoding": "utf-8",
+    "schemaName": "HAOSMART_DEV"
+  },
+  {
+    "id": "sqlServerTo",
+    "dbType": "sqlserver",
+    "dbUrl": "jdbc:sqlserver://192.168.7.110:32662;database=haosmart_base_sqlserver;trustServerCertificate=true",
+    "userName": "haosmart",
+    "password": "sql.123456",
+    "encoding": "utf-8",
+    "schemaName": "dbo"
+  },
+  {
+    "id": "vastBaseG100To",
+    "dbType": "vastbase",
+    "dbUrl": "jdbc:vastbase://192.168.100.15:5432/vastbase_oracle?currentSchema=public",
+    "userName": "tpcc",
+    "password": "tpcc@123",
+    "encoding": "utf-8",
+    "schemaName": "public"
+  },
+  {
+    "id": "kingbase8To",
+    "dbType": "kingbase8",
+    "dbUrl": "jdbc:kingbase8://192.168.100.25:54321/haosmart_iap_dt?currentSchema=haosmart_base",
+    "userName": "root",
+    "password": "rd.123456",
+    "encoding": "utf-8",
+    "schemaName": "haosmart_base"
+  },
+  {
+    "id": "kingbase8LogTo",
+    "dbType": "kingbase8",
+    "dbUrl": "jdbc:kingbase8://192.168.100.25:54321/haosmart_iap_dt?currentSchema=haosmart_log",
+    "userName": "root",
+    "password": "rd.123456",
+    "encoding": "utf-8",
+    "schemaName": "haosmart_log"
+  },
+  {
+    "id": "kingbase8UploadTo",
+    "dbType": "kingbase8",
+    "dbUrl": "jdbc:kingbase8://192.168.100.25:54321/haosmart_iap_dt?currentSchema=haosmart_upload",
+    "userName": "root",
+    "password": "rd.123456",
+    "encoding": "utf-8",
+    "schemaName": "haosmart_upload"
+  },
+  {
+    "id": "kingbase8SeataTo",
+    "dbType": "kingbase8",
+    "dbUrl": "jdbc:kingbase8://192.168.100.25:54321/haosmart_iap_dt?currentSchema=haosmart_seata",
+    "userName": "root",
+    "password": "rd.123456",
+    "encoding": "utf-8",
+    "schemaName": "haosmart_seata"
+  }
+]

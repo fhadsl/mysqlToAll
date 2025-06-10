@@ -1,0 +1,62 @@
+[
+  {
+    "id": "mysqlFrom",
+    "dbType": "mysql",
+    "dbUrl": "jdbc:mysql://192.168.7.110:32215/haosmart_base?useUnicode=true&characterEncoding=utf-8&useSSL=false&serverTimezone=Asia/Shanghai",
+    "userName": "haosmart-dev",
+    "password": "haosmartdev.123456",
+    "encoding": "utf-8"
+  },
+  {
+    "id": "mysqlLogFrom",
+    "dbType": "mysql",
+    "dbUrl": "jdbc:mysql://192.168.7.110:32215/haosmart_log?useUnicode=true&characterEncoding=utf-8&useSSL=false&serverTimezone=Asia/Shanghai",
+    "userName": "haosmart-dev",
+    "password": "haosmartdev.123456",
+    "encoding": "utf-8"
+  },
+  {
+    "id": "mysqlUploadFrom",
+    "dbType": "mysql",
+    "dbUrl": "jdbc:mysql://192.168.7.110:32215/haosmart_upload?useUnicode=true&characterEncoding=utf-8&useSSL=false&serverTimezone=Asia/Shanghai",
+    "userName": "haosmart-dev",
+    "password": "haosmartdev.123456",
+    "encoding": "utf-8"
+  },
+  {
+    "id": "oracleTo",
+    "dbType": "oracle",
+    "dbUrl": "jdbc:oracle:thin:@//192.168.100.230:1525/LHRPDB1",
+    "userName": "HAOSMART_DEV",
+    "password": "rd.123456",
+    "encoding": "utf-8",
+    "schemaName": "DEV_TEST"
+  },
+  {
+    "id": "sqlServerTo",
+    "dbType": "sqlserver",
+    "dbUrl": "jdbc:sqlserver://192.168.7.110:32662;database=haosmart_base;trustServerCertificate=true",
+    "userName": "haosmart",
+    "password": "sql.123456",
+    "encoding": "utf-8",
+    "schemaName": "dbo"
+  },
+  {
+    "id": "vastBaseG100To",
+    "dbType": "vastbase",
+    "dbUrl": "jdbc:vastbase://192.168.100.15:5432/vastbase_oracle?currentSchema=public",
+    "userName": "tpcc",
+    "password": "tpcc@123",
+    "encoding": "utf-8",
+    "schemaName": "public"
+  },
+  {
+    "id": "kingbase8To",
+    "dbType": "kingbase8",
+    "dbUrl": "jdbc:kingbase8://192.168.100.25:54321/test",
+    "userName": "root",
+    "password": "rd.123456",
+    "encoding": "utf-8",
+    "schemaName": "public"
+  }
+]
