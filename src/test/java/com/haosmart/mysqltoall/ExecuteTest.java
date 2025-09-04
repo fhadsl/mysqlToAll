@@ -70,4 +70,10 @@ public class ExecuteTest {
         DdlExecutor executor = new DdlExecutor(ConfigUtil.getConfig("mysqlSeataFrom"), ConfigUtil.getConfig("kingbase8SeataTo"));
         executor.syncAllTables();
     }
+
+    @Test
+    public void postgreSqlTest() throws SQLException {
+        DdlExecutor executor = new DdlExecutor(ConfigUtil.getConfig("mysqlFrom"), ConfigUtil.getConfig("postgreSqlTo"));
+        executor.syncSingleTable("tenant_config_meta");
+    }
 }

@@ -58,5 +58,14 @@
     "password": "rd.123456",
     "encoding": "utf-8",
     "schemaName": "public"
+  },
+  {
+    "id": "postgreSqlTo",
+    "dbType": "postgresql",
+    "dbUrl": "jdbc:postgresql://localhost:5432/testdb",
+    "userName": "user",
+    "password": "password",
+    "encoding": "utf-8",
+    "schemaName": "public"
   }
 ]

@@ -4,11 +4,13 @@ import com.haosmart.mysqltoall.config.DbConfig;
 import com.haosmart.mysqltoall.ddl.dialect.KingBaseDdlProvider;
 import com.haosmart.mysqltoall.ddl.dialect.OracleDdlProvider;
 import com.haosmart.mysqltoall.ddl.dialect.SqlServerDdlProvider;
+import com.haosmart.mysqltoall.ddl.dialect.PostgreSqlDdlProvider;
 import com.haosmart.mysqltoall.ddl.dialect.VastBaseG100DdlProvider;
 import com.haosmart.mysqltoall.enumration.CaseType;
 import lombok.NonNull;
 
 import java.sql.DatabaseMetaData;
+import java.sql.SQLException;
 
 
 /**
@@ -18,12 +20,14 @@ import java.sql.DatabaseMetaData;
  */
 public class DdlProviderFactory {
 
-    public static DdlProvider build(@NonNull DbConfig config, DatabaseMetaData databaseMetaData) {
+    public static DdlProvider build(@NonNull DbConfig config, DatabaseMetaData databaseMetaData) throws SQLException {
         switch (config.getDbType()) {
             case ORACLE:
                 return new OracleDdlProvider(config, databaseMetaData, CaseType.UPPER, true);
             case SQLSERVER:
                 return new SqlServerDdlProvider(config, databaseMetaData, CaseType.REMAIN);
+            case POSTGRESQL:
+                return new PostgreSqlDdlProvider(config, databaseMetaData);
             case VAST_BASE:
                 return new VastBaseG100DdlProvider(config, databaseMetaData, CaseType.LOWER);
             case KING_BASE_V8:
