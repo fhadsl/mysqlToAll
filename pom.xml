@@ -57,6 +57,12 @@
             <version>12.8.1.jre8</version>
         </dependency>
 
+        <dependency>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+            <version>42.7.3</version>
+        </dependency>
+
         <!--海量-->
         <dependency>
             <groupId>cn.com.vastdata</groupId>
