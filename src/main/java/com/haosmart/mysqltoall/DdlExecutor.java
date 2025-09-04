@@ -10,6 +10,7 @@ import com.haosmart.mysqltoall.ddl.DdlProviderFactory;
 import com.haosmart.mysqltoall.entity.TableMeta;
 import lombok.extern.slf4j.Slf4j;
 
+import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -35,30 +36,49 @@ public class DdlExecutor {
         this.sourceProvider = DataSourceProvider.create(sourceConfig);
         this.targetProvider = DataSourceProvider.create(targetConfig);
         this.executeStrategy = executeStrategy;
-        this.provider = DdlProviderFactory.build(targetConfig, this.targetProvider.getDataSource().getConnection().getMetaData());
+        // Use a temporary connection to get metadata, then close it.
+        try (Connection metaConn = this.targetProvider.getDataSource().getConnection()) {
+            this.provider = DdlProviderFactory.build(targetConfig, metaConn.getMetaData());
+        }
     }
 
     public DdlExecutor(DbConfig sourceConfig, DbConfig targetConfig) throws SQLException {
         this(sourceConfig, targetConfig, new DefaultExecuteStrategy());
     }
 
-    public void syncSingleTable(String tableName, String condition) throws SQLException {
-        DdlExecutorWorker ddlExecutorWorker = this.createWorker();
+    public void syncSingleTable(String tableName, String condition) throws Exception {
         List<TableMeta> tableList = this.getTableMetas(tableName);
         if (ObjectUtil.isEmpty(tableList)) {
             return;
         }
-        ddlExecutorWorker.transferSingleTable(tableList.get(0), condition);
-        log.warn(Thread.currentThread().getName() + " finished");
+
+        Connection conn = null;
+        try {
+            conn = this.targetProvider.getDataSource().getConnection();
+            conn.setAutoCommit(false);
+            DdlExecutorWorker ddlExecutorWorker = this.createWorker(conn);
+            ddlExecutorWorker.transferSingleTable(tableList.get(0), condition);
+            conn.commit();
+            log.warn(Thread.currentThread().getName() + " finished");
+        } catch (Exception e) {
+            if (conn != null) {
+                conn.rollback();
+            }
+            throw e;
+        } finally {
+            if (conn != null) {
+                conn.close();
+            }
+        }
     }
 
 
-    public void syncSingleTable(String tableName) throws SQLException {
+    public void syncSingleTable(String tableName) throws Exception {
         this.syncSingleTable(tableName, null);
     }
 
 
-    public void syncSingleTableList(String... tableNames) throws SQLException {
+    public void syncSingleTableList(String... tableNames) {
         this.syncSingleTableList(1, tableNames);
     }
 
@@ -80,33 +100,57 @@ public class DdlExecutor {
     }
 
     private void executedByWorker(List<List<TableMeta>> tableList) {
-        if (ObjectUtil.isNotEmpty(tableList)) {
-            List<CompletableFuture<Boolean>> futures = new ArrayList<>(16);
+        if (ObjectUtil.isEmpty(tableList)) {
+            return;
+        }
+        Connection conn = null;
+        try {
+            conn = this.targetProvider.getDataSource().getConnection();
+            conn.setAutoCommit(false);
+            final Connection finalConn = conn;
+
+            List<CompletableFuture<Void>> futures = new ArrayList<>(16);
             for (List<TableMeta> fragment : tableList) {
-                CompletableFuture<Boolean> future = CompletableFuture.supplyAsync(() -> {
-                    DdlExecutorWorker ddlExecutorWorker = this.createWorker();
+                CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
                     try {
+                        DdlExecutorWorker ddlExecutorWorker = this.createWorker(finalConn);
                         ddlExecutorWorker.transferTableList(fragment);
                         log.warn(Thread.currentThread().getName() + " finished");
-                        return true;
                     } catch (Throwable e) {
-                        return false;
+                        throw new RuntimeException(e);
                     }
                 });
                 futures.add(future);
             }
-            try {
-                CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).thenRun(() -> log.warn("all done")).get();
-            } catch (Exception e) {
-                throw new RuntimeException(e);
-            }
 
+            CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).get();
+            conn.commit();
+            log.warn("All workers finished successfully, transaction committed.");
+
+        } catch (Exception e) {
+            log.error("Error during concurrent execution, rolling back transaction.", e);
+            if (conn != null) {
+                try {
+                    conn.rollback();
+                } catch (SQLException ex) {
+                    log.error("Error during transaction rollback.", ex);
+                }
+            }
+            throw new RuntimeException(e);
+        } finally {
+            if (conn != null) {
+                try {
+                    conn.close();
+                } catch (SQLException e) {
+                    log.error("Error closing connection.", e);
+                }
+            }
         }
     }
 
 
-    private DdlExecutorWorker createWorker() {
-        return new DdlExecutorWorker(this.sourceProvider, this.targetProvider, this.provider, this.executeStrategy);
+    private DdlExecutorWorker createWorker(Connection connection) {
+        return new DdlExecutorWorker(this.sourceProvider, this.targetProvider, this.provider, this.executeStrategy, connection);
     }
 
     private List<TableMeta> getTableMetas(String... tableNames) {

@@ -17,6 +17,7 @@ import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 
 import javax.sql.DataSource;
+import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -32,6 +33,8 @@ public class DdlExecutorWorker {
 
     private final ExecuteStrategy executeStrategy;
 
+    private final Connection connection;
+
     private final static String QUERY_WITH_CONDITION = "select * from {} where {}";
 
     private final static String QUERY_ALL = "select * from {}";
@@ -42,11 +45,12 @@ public class DdlExecutorWorker {
 
     private final static String DELETE_ALL = "delete from {}";
 
-    public DdlExecutorWorker(DataSourceProvider sourceProvider, DataSourceProvider targetProvider, DdlProvider ddlProvider, ExecuteStrategy executeStrategy) {
+    public DdlExecutorWorker(DataSourceProvider sourceProvider, DataSourceProvider targetProvider, DdlProvider ddlProvider, ExecuteStrategy executeStrategy, Connection connection) {
         this.sourceProvider = sourceProvider;
         this.targetProvider = targetProvider;
         this.ddlProvider = ddlProvider;
         this.executeStrategy = executeStrategy;
+        this.connection = connection;
         if (this.executeStrategy.debugMode()) {
             DbUtil.setShowSqlGlobal(true, true, true, Level.DEBUG);
         }
@@ -88,7 +92,7 @@ public class DdlExecutorWorker {
      * @param tableMeta 表对象
      * @param condition 数据过滤条件
      */
-    public void transferSingleTable(TableMeta tableMeta, String condition) throws SQLException {
+    public void transferSingleTable(TableMeta tableMeta, String condition) throws Exception {
         if (ObjectUtil.isNull(tableMeta)) {
             return;
         }
@@ -141,13 +145,12 @@ public class DdlExecutorWorker {
      * @param fromTable 来源表
      * @param toTable   目标表
      */
-    private Table recreateTable(Table fromTable, Table toTable) throws SQLException {
-        this.targetProvider.getDb().tx((db) -> {
-            if (this.isTableExists(toTable)) {
-                this.deleteTable(db, toTable);
-            }
-            this.createTable(db, fromTable);
-        });
+    private Table recreateTable(Table fromTable, Table toTable) throws Exception {
+        Db db = Db.use(this.connection);
+        if (this.isTableExists(toTable)) {
+            this.deleteTable(db, toTable);
+        }
+        this.createTable(db, fromTable);
         Table table = this.getTable(this.targetProvider.getDataSource(), fromTable.getTableName());
         Assert.isTrue(this.isTableExists(table), "Recreate Table:{} failed", fromTable.getTableName());
         log.info("CREATE TABLE {}", table.getTableName());
@@ -273,16 +276,14 @@ public class DdlExecutorWorker {
      * @param condition 数据过滤条件
      */
     private void insertData(TableMeta tableMeta, Table fromTable, Table toTable, String condition) throws SQLException {
-
-        this.targetProvider.getDb().tx((db) -> {
-            long recordCount;
-            if (CharSequenceUtil.isNotBlank(condition)) {
-                recordCount = this.getTableRecordCount(tableMeta.getTableName(), condition);
-            } else {
-                recordCount = tableMeta.getRecordCount();
-            }
-            this.insertDataWithPage(db, fromTable, toTable, recordCount, condition);
-        });
+        Db db = Db.use(this.connection);
+        long recordCount;
+        if (CharSequenceUtil.isNotBlank(condition)) {
+            recordCount = this.getTableRecordCount(tableMeta.getTableName(), condition);
+        } else {
+            recordCount = tableMeta.getRecordCount();
+        }
+        this.insertDataWithPage(db, fromTable, toTable, recordCount, condition);
     }
 
 
